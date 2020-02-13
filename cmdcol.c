@@ -1,12 +1,26 @@
 #include "commando.h"
 // cmdcol.c: functions related to cmdcol_t collections of commands.
 
-void cmdcol_add(cmdcol_t *col, cmd_t *cmd);
+void cmdcol_add(cmdcol_t *col, cmd_t *cmd){
+  if(col->size<MAX_CMDS){
+    col->cmd[col->size] = cmd;
+    col->size ++;
+  }
+  else{
+    printf("ERROR: reach maximum cmds\n");
+    //exit(1);
+  }
+}
 // Add the given cmd to the col structure. Update the cmd[] array and
 // size field. Report an error if adding would cause size to exceed
 // MAX_CMDS, the maximum number commands supported.
 
-void cmdcol_print(cmdcol_t *col);
+void cmdcol_print(cmdcol_t *col){
+  printf("JOB  #PID      STAT   STR_STAT OUTB COMMAND\n");
+  for(int i = 0; i<col->size; i++){
+    printf("%-4d #%-8d %5d %10s %4d %s",i,col[i]->pid,col[i]->status,col[i]->STR_STAT,col[i]->output_size,col[i]->argv);
+  }
+}
 // Print all cmd elements in the given col structure.  The format of
 // the table is
 //
