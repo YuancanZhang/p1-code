@@ -18,7 +18,7 @@ void cmdcol_add(cmdcol_t *col, cmd_t *cmd){
 void cmdcol_print(cmdcol_t *col){
   printf("JOB  #PID      STAT   STR_STAT OUTB COMMAND\n");
   for(int i = 0; i<col->size; i++){
-    printf("%-4d #%-8d %5d %10s %4d %s",i,col[i]->pid,col[i]->status,col[i]->STR_STAT,col[i]->output_size,col[i]->argv);
+    ("%-4d #%-8d %5d %10s %4d %s\n",i,col->cmd[i]->pid,col->cmd[i]->status,col->cmd[i]->str_status,col->cmd[i]->output_size,col->cmd[i]->argv);
   }
 }
 // Print all cmd elements in the given col structure.  The format of
@@ -40,9 +40,17 @@ void cmdcol_print(cmdcol_t *col){
 // The final field should be the contents of cmd->argv[] with a space
 // between each element of the array.
 
-void cmdcol_update_state(cmdcol_t *col, int block);
+void cmdcol_update_state(cmdcol_t *col, int block){
+  for(int i = 0; i<col->size; i++){
+    cmd_update_state(col->cmd[i],block);
+  }
+}
 // Update each cmd in col by calling cmd_update_state() which is also
 // passed the block argument (either NOBLOCK or DOBLOCK)
 
-void cmdcol_freeall(cmdcol_t *col);
+void cmdcol_freeall(cmdcol_t *col){
+  for(int i = 0; i<col->size; i++){
+    cmd_free(col->cmd[i]);
+  }
+}
 // Call cmd_free() on all of the constituent cmd_t's.
