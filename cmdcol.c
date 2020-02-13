@@ -18,7 +18,7 @@ void cmdcol_add(cmdcol_t *col, cmd_t *cmd){
 void cmdcol_print(cmdcol_t *col){
   printf("JOB  #PID      STAT   STR_STAT OUTB COMMAND\n");
   for(int i = 0; i<col->size; i++){
-    ("%-4d #%-8d %5d %10s %4d %s\n",i,col->cmd[i]->pid,col->cmd[i]->status,col->cmd[i]->str_status,col->cmd[i]->output_size,col->cmd[i]->argv);
+    printf("%-4d #%-8d %5d %10s %4d %s\n",i,col->cmd[i]->pid,col->cmd[i]->status,col->cmd[i]->str_status,col->cmd[i]->output_size,col->cmd[i]->argv);
   }
 }
 // Print all cmd elements in the given col structure.  The format of
