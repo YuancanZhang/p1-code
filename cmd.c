@@ -43,13 +43,19 @@ void cmd_free(cmd_t *cmd){
 // NULL. Finally, deallocates cmd itself.
 
 void cmd_start(cmd_t *cmd){
+	pipe(cmd->out_pipe);
 	pid_t child = fork();
 	if(child == 0){
-		execvp(cmd->name,cmd->argv);
+		dup2(cmd->out_pipe[PREAD],STDOUT_FILENO);
 		snprintf(cmd->str_status,4,"%s","RUN");
-	}
-	pipe(cmd->out_pipe);
+		close(pipe(PREAD));
+		execvp(cmd->name,cmd->argv);
 
+	}
+	else{
+		cmd->pid = child;
+		close(cmd->out_pipe[PWRITE]);
+	}
 
 }
 // Forks a process and starts executes command in cmd in the process.
@@ -63,15 +69,15 @@ void cmd_start(cmd_t *cmd){
 
 void cmd_update_state(cmd_t *cmd, int block){
 	if(cmd->finished != 1){
-			snprintf(cmd->str_status,4,"%s","RUN");
+		waitpid(cmd->pid,&(cmd->status),block); //if the status is 0 then it exited normally
+		if(WIFEXITED(cmd->status)){
+				cmd->finished = 1;
+				cmd->status = WEXITSTATUS(cmd->status);
+				printf("@!!! %s[#%d]: EXIT(%d)\n",cmd->name,cmd->pid,cmd->status);
+			}
+		cmd_fetch_output(cmd);
 		}
-	waitpid(cmd->pid,&(cmd->status),block); //if the status is 0 then it exited normally
-	if(WIFEXITED(cmd->status)){
-		cmd->finished = 1;
-		cmd->status = WEXITSTATUS(cmd->status);
-		printf("@!!! %s[#%d]: EXIT(%d)\n",cmd->name,cmd->pid,cmd->status);
-	}
-	cmd_fetch_output(cmd);
+
 }
 // If the finished flag is 1, does nothing. Otherwise, updates the
 // state of cmd.  Uses waitpid() and the pid field of command to wait
@@ -128,7 +134,13 @@ void cmd_fetch_output(cmd_t *cmd){
 	if(cmd->finished == 0){
 		printf("%s[#%d] not finished yet\n",cmd->name,cmd->pid);
 	}
+	else{
+		int* nread = NULL;
+		cmd->output = read_all(cmd->out_pipe[PREAD],nread);
+		cmd->output_size = *nread;
+		close(cmd->out_pipe[PREAD]);
 
+	}
 }
 // If cmd->finished is zero, prints an error message with the format
 //
