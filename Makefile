@@ -2,8 +2,8 @@
 CFLAGS = -Wall -g
 CC     = gcc $(CFLAGS)
 
-commando: commando.o cmd.o cmdcol.o util.o
-	$(CC) -o commando.o cmd.o cmdcol.o util.o
+commando: commando.o cmd.o cmdcol.o util.o commando.h
+	$(CC) -o commando commando.o cmd.o cmdcol.o util.o commando.h
 
 commando.o: commando.c
 	$(CC) -c $<
@@ -16,3 +16,6 @@ cmdcol.o: cmdcol.c
 
 util.o: util.c
 	$(CC) -c $^
+
+clean:
+	rm -f *.o commando

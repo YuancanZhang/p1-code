@@ -46,8 +46,9 @@ void cmd_start(cmd_t *cmd){
 	pipe(cmd->out_pipe);
 	pid_t child = fork();
 	if(child == 0){
-		dup2(cmd->out_pipe[PREAD],STDOUT_FILENO);
 		snprintf(cmd->str_status,4,"%s","RUN");
+		dup2(cmd->out_pipe[PREAD],STDOUT_FILENO);
+
 		close(pipe(PREAD));
 		execvp(cmd->name,cmd->argv);
 
@@ -135,9 +136,9 @@ void cmd_fetch_output(cmd_t *cmd){
 		printf("%s[#%d] not finished yet\n",cmd->name,cmd->pid);
 	}
 	else{
-		int* nread = NULL;
-		cmd->output = read_all(cmd->out_pipe[PREAD],nread);
-		cmd->output_size = *nread;
+		int nread = 0;
+		cmd->output = read_all(cmd->out_pipe[PREAD],&nread);
+		cmd->output_size = nread;
 		close(cmd->out_pipe[PREAD]);
 
 	}
@@ -157,12 +158,12 @@ void cmd_print_output(cmd_t *cmd){
 			printf("%s[#%d] : output not ready\n",cmd->name,cmd->pid);
 		}
 		else{
-      int *dispatcher = cmd->output;
-			for(int i = 0; i<cmd->output_size; i++){
-				printf("%i\n",dispatcher[i]);
+			dup2(STDOUT_FILENO,cmd->out_pipe[PWRITE]);
+			write(cmd->out_pipe[PWRITE],cmd->output,cmd->output_size);
+			close(cmd->out_pipe[PWRITE]);
 			}
 		}
-}
+
 // Prints the output of the cmd contained in the output field if it is
 // non-null. Prints the error message
 //
