@@ -46,10 +46,10 @@ void cmd_start(cmd_t *cmd){
 	pipe(cmd->out_pipe);
 	pid_t child = fork();
 	if(child == 0){
-		snprintf(cmd->str_status,4,"%s","RUN");
 		dup2(cmd->out_pipe[PREAD],STDOUT_FILENO);
+		snprintf(cmd->str_status,4,"%s","RUN");
 
-		close(pipe(PREAD));
+		close(cmd->out_pipe[PREAD]);
 		execvp(cmd->name,cmd->argv);
 
 	}

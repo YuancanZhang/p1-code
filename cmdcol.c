@@ -29,9 +29,25 @@ void cmdcol_print(cmdcol_t *col){
     // }
 
     printf("%-4d #%-8d %5d %10s %4d",i,col->cmd[i]->pid,col->cmd[i]->status,col->cmd[i]->str_status,col->cmd[i]->output_size);
-    int j = 0;
-    while(col->cmd[i]->argv[j]!=NULL){
-      printf(" %s",col->cmd[i]->argv[j]);
+    // int j = 0;
+    // while(col->cmd[i]->argv[j]!=NULL){
+    //   printf(" %s",col->cmd[i]->argv[j]);
+    // }
+    // int l = 0;
+    // while(col->cmd[i]->argv[l]!=NULL){
+    //   l++;
+    // }
+    // for(int j = 0; j<l; j++){
+    //   printf(" %s",col->cmd[i]->argv[j]);
+    // }
+    // printf("\n");
+    for(int j = 0; j<ARG_MAX; j++){
+      if(col->cmd[i]->argv[j]!=NULL){
+        printf(" %s",col->cmd[i]->argv[j]);
+      }
+      else{
+        break;
+      }
     }
     printf("\n");
   }
@@ -67,5 +83,6 @@ void cmdcol_freeall(cmdcol_t *col){
   for(int i = 0; i<col->size; i++){
     cmd_free(col->cmd[i]);
   }
+  free(col);
 }
 // Call cmd_free() on all of the constituent cmd_t's.
