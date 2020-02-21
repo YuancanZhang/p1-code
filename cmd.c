@@ -47,13 +47,14 @@ void cmd_start(cmd_t *cmd){
 	pid_t child = fork();
 	if(child == 0){
 		dup2(cmd->out_pipe[PREAD],STDOUT_FILENO);
-		snprintf(cmd->str_status,4,"%s","RUN");
+
 
 		close(cmd->out_pipe[PREAD]);
 		execvp(cmd->name,cmd->argv);
 
 	}
 	else{
+		snprintf(cmd->str_status,4,"%s","RUN");
 		cmd->pid = child;
 		close(cmd->out_pipe[PWRITE]);
 	}
@@ -74,6 +75,7 @@ void cmd_update_state(cmd_t *cmd, int block){
 		if(WIFEXITED(cmd->status)){
 				cmd->finished = 1;
 				cmd->status = WEXITSTATUS(cmd->status);
+				snprintf(cmd->str_status,8,"EXIT(%d)",cmd->status);
 				printf("@!!! %s[#%d]: EXIT(%d)\n",cmd->name,cmd->pid,cmd->status);
 			}
 		cmd_fetch_output(cmd);
@@ -140,6 +142,7 @@ void cmd_fetch_output(cmd_t *cmd){
 		cmd->output = read_all(cmd->out_pipe[PREAD],&nread);
 		cmd->output_size = nread;
 		close(cmd->out_pipe[PREAD]);
+
 
 	}
 }
